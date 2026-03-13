@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ebook Interaktif: Cluster Analysis dalam Machine Learning</title>
+  <style>
+    :root {
+      --paper: #fffaf2;
+      --ink: #1f2933;
+      --muted: #5b6875;
+      --line: #d9cdbd;
+      --accent: #0f766e;
+      --accent-2: #c2410c;
+      --accent-3: #164e63;
+      --good: #166534;
+      --warn: #a16207;
+      --bad: #b91c1c;
+      --shadow: 0 16px 40px rgba(31, 41, 51, 0.12);
+      --radius: 20px;
+      --mono: "Consolas", "Courier New", monospace;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(194, 65, 12, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 22%),
+        linear-gradient(180deg, #f4ede1 0%, #f7f3ec 35%, #f9f8f4 100%);
+      line-height: 1.65;
+    }
+    a { color: var(--accent-3); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .progress { position: fixed; inset: 0 0 auto 0; height: 6px; background: rgba(255,255,255,0.4); z-index: 1000; }
+    .progress > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.15s linear; }
+    .shell { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 28px; max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .sidebar { position: sticky; top: 24px; align-self: start; background: rgba(255, 250, 242, 0.82); backdrop-filter: blur(10px); border: 1px solid rgba(217, 205, 189, 0.9); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 18px; }
+    .brand { font-family: var(--serif); font-size: 1.5rem; line-height: 1.1; margin: 0 0 8px; }
+    .tag { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(15, 118, 110, 0.12); color: var(--accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 16px; }
+    .sidebar p { margin: 0 0 14px; color: var(--muted); font-size: 0.96rem; }
+    .toc { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 6px; }
+    .toc a { display: block; padding: 10px 12px; border-radius: 14px; color: var(--ink); transition: 0.2s ease; }
+    .toc a:hover, .toc a.active { background: rgba(15, 118, 110, 0.1); color: var(--accent); text-decoration: none; }
+    .main { display: grid; gap: 22px; min-width: 0; }
+    .panel { background: rgba(255, 250, 242, 0.92); border: 1px solid rgba(217, 205, 189, 0.9); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; }
+    .hero { padding: 44px; background: linear-gradient(135deg, rgba(15, 118, 110, 0.96), rgba(22, 78, 99, 0.92) 52%, rgba(194, 65, 12, 0.9)), #0f766e; color: white; position: relative; isolation: isolate; }
+    .hero::after { content: ""; position: absolute; right: -90px; top: -90px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,0.08); z-index: -1; }
+    .hero h1 { font-family: var(--serif); font-size: clamp(2.1rem, 4vw, 4rem); line-height: 1.03; margin: 0 0 18px; max-width: 900px; }
+    .hero p { margin: 0 0 18px; max-width: 850px; font-size: 1.05rem; color: rgba(255,255,255,0.92); }
+    .hero-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 28px; }
+    .hero-card { background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; padding: 16px; }
+    .hero-card strong { display: block; font-size: 1.65rem; margin-bottom: 6px; }
+    section { padding: 34px; scroll-margin-top: 16px; }
+    section h2 { font-family: var(--serif); font-size: clamp(1.6rem, 2.2vw, 2.4rem); line-height: 1.15; margin: 0 0 10px; }
+    section > p.lead { margin-top: 0; color: var(--muted); font-size: 1.04rem; max-width: 850px; }
+    .grid-2, .grid-3, .grid-4 { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+    .card h3, .card h4 { margin-top: 0; margin-bottom: 8px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; }
+    .pill { padding: 8px 12px; border-radius: 999px; background: #f1e6d7; font-size: 0.88rem; font-weight: 600; }
+    .callout { border-left: 5px solid var(--accent); background: rgba(15, 118, 110, 0.07); padding: 16px 18px; border-radius: 16px; margin: 16px 0; }
+    .warn { border-left-color: var(--warn); background: rgba(161, 98, 7, 0.09); }
+    .bad { border-left-color: var(--bad); background: rgba(185, 28, 28, 0.08); }
+    .good { border-left-color: var(--good); background: rgba(22, 101, 52, 0.08); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: var(--paper); border-radius: 18px; overflow: hidden; }
+    th, td { text-align: left; padding: 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: #f0e5d7; font-size: 0.95rem; }
+    tr:last-child td { border-bottom: none; }
+    details { border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; background: var(--paper); }
+    details + details { margin-top: 12px; }
+    summary { cursor: pointer; font-weight: 700; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .checklist li { padding: 12px 14px; background: var(--paper); border-radius: 16px; border: 1px solid var(--line); }
+    .flow { display: grid; gap: 12px; counter-reset: steps; }
+    .flow div { position: relative; padding: 16px 16px 16px 60px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; }
+    .flow div::before { counter-increment: steps; content: counter(steps); position: absolute; left: 16px; top: 16px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+    .algo-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .picker-form { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: 0.94rem; color: var(--muted); }
+    select { width: 100%; padding: 11px 12px; border-radius: 14px; border: 1px solid var(--line); background: white; font: inherit; color: var(--ink); }
+    .recommendation { background: linear-gradient(180deg, #fff8ef, #fffdf9); border: 1px solid var(--line); border-radius: 22px; padding: 18px; }
+    .recommendation h3 { margin-top: 0; font-size: 1.2rem; }
+    .metric-gauge { display: grid; gap: 10px; }
+    .metric-bar { height: 14px; border-radius: 999px; background: #eadfce; overflow: hidden; }
+    .metric-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .quiz { display: grid; gap: 16px; }
+    .question { padding: 16px; border: 1px solid var(--line); background: var(--paper); border-radius: 18px; }
+    .question h4 { margin: 0 0 10px; }
+    .question label { color: var(--ink); display: block; margin: 8px 0; cursor: pointer; }
+    button { border: none; border-radius: 999px; padding: 12px 18px; font: inherit; font-weight: 700; cursor: pointer; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: white; }
+    .quiz-result, .mini-output { margin-top: 14px; padding: 16px; border-radius: 16px; background: rgba(15, 118, 110, 0.08); border: 1px solid rgba(15, 118, 110, 0.18); display: none; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 14px; }
+    .tab-button { background: #efe2d0; color: var(--ink); padding: 10px 14px; }
+    .tab-button.active { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: white; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .footer-note { color: var(--muted); font-size: 0.93rem; }
+    code { font-family: var(--mono); background: #f2ece4; padding: 0.15rem 0.35rem; border-radius: 8px; }
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: relative; top: 0; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .hero, section { padding: 24px; }
+      .hero-grid, .grid-2, .grid-3, .grid-4, .algo-picker { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress"><span id="readingProgress"></span></div>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="tag">Ebook Interaktif</div>
+      <h1 class="brand">Cluster Analysis yang Lebih Tepat dan Lebih Praktikal</h1>
+      <p>Bahan ini dibina semula daripada PDF asal tentang clustering. Saya betulkan bahagian yang terlalu mutlak, tambah bahagian yang hilang, dan tukar format laporan padat menjadi pengalaman belajar yang lebih hidup.</p>
+      <p><strong>Fokus:</strong> faham konsep, pilih algoritma dengan betul, elak salah tafsir, dan tahu workflow dunia sebenar.</p>
+      <nav>
+        <ul class="toc">
+          <li><a href="#mula">Mula</a></li>
+          <li><a href="#asas">Asas Clustering</a></li>
+          <li><a href="#metriks">Metrik Jarak</a></li>
+          <li><a href="#algoritma">Peta Algoritma</a></li>
+          <li><a href="#pembetulan">Mitos dan Pembetulan</a></li>
+          <li><a href="#pemilihan">Pemilih Algoritma</a></li>
+          <li><a href="#workflow">Workflow Praktikal</a></li>
+          <li><a href="#penilaian">Menilai Cluster</a></li>
+          <li><a href="#aplikasi">Aplikasi Dunia Sebenar</a></li>
+          <li><a href="#quiz">Kuiz Interaktif</a></li>
+          <li><a href="#rujukan">Nota Akhir</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="main">
+      <article class="panel hero" id="mula">
+        <div class="tag" style="background: rgba(255,255,255,0.14); color: white;">Machine Learning / Unsupervised Learning</div>
+        <h1>Ebook Interaktif: Cluster Analysis dalam Machine Learning</h1>
+        <p>Clustering bukan sekadar "bahagikan data kepada kumpulan". Ia ialah proses membuat keputusan tentang representasi data, skala, bentuk cluster, noise, dan juga tujuan analisis. Ebook ini menjadikan topik asal lebih jelas, lebih jujur dari sudut teknikal, dan lebih sesuai untuk pembaca yang benar-benar mahu menggunakannya.</p>
+        <p>Kandungan ini menambah perkara yang sering tertinggal dalam laporan teori: normalisasi data, mixed-type features, kestabilan cluster, risiko guna t-SNE/UMAP secara salah, dan cara memilih algoritma berdasarkan sifat data.</p>
+        <div class="hero-grid">
+          <div class="hero-card"><strong>8+</strong>bab utama yang disusun semula agar lebih mudah dihadam.</div>
+          <div class="hero-card"><strong>1</strong>alat cadangan algoritma yang boleh dicuba terus.</div>
+          <div class="hero-card"><strong>6</strong>soalan kuiz untuk semak kefahaman selepas membaca.</div>
+        </div>
+      </article>
+      <article class="panel">
+        <section id="asas">
+          <h2>1. Asas Clustering</h2>
+          <p class="lead">Versi asal PDF sudah menerangkan tujuan clustering dengan baik, tetapi terlalu menekankan pembahagian diskret. Dalam amalan sebenar, cluster boleh kabur, bertindih, dan sangat sensitif terhadap preprocessing.</p>
+          <div class="grid-3">
+            <div class="card"><h3>Apa itu clustering?</h3><p>Clustering ialah teknik <em>unsupervised learning</em> untuk mencari struktur dalam data tanpa label. Ia cuba meletakkan titik data yang serupa ke dalam kumpulan yang sama.</p></div>
+            <div class="card"><h3>Apa yang dianggap serupa?</h3><p>Ia bergantung pada perwakilan data dan metrik jarak. Tukar skala atau metrik, hasil cluster juga boleh berubah dengan ketara.</p></div>
+            <div class="card"><h3>Hasil cluster bukan kebenaran mutlak</h3><p>Clustering biasanya menghasilkan hipotesis struktur, bukan jawapan muktamad. Validasi domain tetap diperlukan.</p></div>
+          </div>
+          <div class="callout"><strong>Prinsip penting:</strong> cluster yang cantik secara visual belum tentu berguna secara analitik. Nilai sebenar datang apabila cluster membantu keputusan atau pemahaman domain.</div>
+          <div class="tabs" role="tablist" aria-label="Mod pembaca">
+            <button class="tab-button active" data-tab="tab-beginner">Mod Ringkas</button>
+            <button class="tab-button" data-tab="tab-advanced">Mod Praktikal</button>
+          </div>
+          <div class="tab-panel active" id="tab-beginner">
+            <div class="card">
+              <h3>Tiga idea yang perlu pegang</h3>
+              <ul>
+                <li>Tiada satu algoritma terbaik untuk semua data.</li>
+                <li>Preprocessing sering lebih penting daripada memilih algoritma yang canggih.</li>
+                <li>Cluster perlu dinilai dari sudut statistik dan kegunaan domain.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tab-panel" id="tab-advanced">
+            <div class="card">
+              <h3>Soalan teknikal sebelum mula</h3>
+              <ul>
+                <li>Adakah fitur anda berangka, kategori, sparse, atau gabungan?</li>
+                <li>Adakah bentuk cluster dijangka sfera, padat, memanjang, atau tidak sekata?</li>
+                <li>Adakah anda perlukan model yang boleh digunakan pada data baharu dengan mudah?</li>
+                <li>Adakah objektif anda segmentasi, eksplorasi, denoising, atau feature engineering?</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="metriks">
+          <h2>2. Metrik Jarak dan Kesannya</h2>
+          <p class="lead">PDF asal menyebut Euclidean, Manhattan, Chebyshev, Hamming, dan cosine similarity. Itu betul sebagai asas, tetapi ada satu mesej yang perlu lebih ditekankan: metrik jarak ialah keputusan pemodelan, bukan sekadar pilihan teknikal kecil.</p>
+          <table>
+            <thead><tr><th>Metrik</th><th>Sesuai untuk</th><th>Kekuatan</th><th>Perhatian</th></tr></thead>
+            <tbody>
+              <tr><td>Euclidean</td><td>Data berangka yang telah diskalakan</td><td>Semula jadi untuk K-Means dan banyak model centroid</td><td>Sangat sensitif pada skala dan outlier</td></tr>
+              <tr><td>Manhattan</td><td>Data berangka, dimensi sederhana atau tinggi</td><td>Kurang menghukum outlier berbanding Euclidean</td><td>Masih perlukan scaling jika julat ciri sangat berbeza</td></tr>
+              <tr><td>Cosine</td><td>Teks, embeddings, data sparse</td><td>Fokus pada arah, bukan magnitud</td><td>Tidak sesuai jika magnitud memang bermakna</td></tr>
+              <tr><td>Hamming</td><td>Data binari atau kategori berkod tetap</td><td>Mudah untuk perbandingan simbol</td><td>Tidak menangkap hubungan ordinal atau jarak semantik</td></tr>
+            </tbody>
+          </table>
+          <div class="grid-2" style="margin-top: 16px;">
+            <div class="card"><h3>Apa yang kurang dalam PDF asal</h3><p>Untuk data campuran seperti umur + negeri + jenis langganan, metrik tunggal biasa boleh jadi tidak sesuai. Dalam kes begini, kaedah seperti <code>Gower distance</code> atau pipeline pemprosesan berasingan sering lebih munasabah.</p></div>
+            <div class="card"><h3>Rule of thumb</h3><p>Jika satu ciri diukur dalam ribuan dan satu lagi dalam peratus, jangan terus cluster. Standardize atau normalize dahulu, jika tidak ciri besar akan mendominasi jarak.</p></div>
+          </div>
+          <div class="metric-gauge" style="margin-top: 18px;">
+            <div><strong>Sejauh mana scaling penting untuk Euclidean?</strong><div class="metric-bar"><span style="width: 92%;"></span></div></div>
+            <div><strong>Sejauh mana cosine sesuai untuk teks dan embeddings?</strong><div class="metric-bar"><span style="width: 88%;"></span></div></div>
+            <div><strong>Sejauh mana silhouette boleh dipercayai untuk bentuk cluster kompleks?</strong><div class="metric-bar"><span style="width: 44%;"></span></div></div>
+          </div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="algoritma">
+          <h2>3. Peta Algoritma Utama</h2>
+          <p class="lead">Bahagian ini menggabungkan kandungan PDF asal tentang K-Means, GMM, DBSCAN, HDBSCAN, hierarchical clustering, dan spectral clustering, kemudian menambah konteks pemilihan yang lebih jujur.</p>
+          <div class="grid-3">
+            <div class="card"><h3>K-Means</h3><p>Bagus untuk cluster yang agak bulat, saiz sederhana, dan data numerik yang telah diskalakan.</p><div class="pill-row"><span class="pill">Cepat</span><span class="pill">Perlu pilih K</span><span class="pill">Sensitif outlier</span></div></div>
+            <div class="card"><h3>Gaussian Mixture Model</h3><p>Sesuai apabila anda mahu <em>soft assignment</em> dan cluster berbentuk elips, bukan sekadar sfera.</p><div class="pill-row"><span class="pill">Probabilistik</span><span class="pill">Soft membership</span><span class="pill">Perlu andaian Gaussian</span></div></div>
+            <div class="card"><h3>DBSCAN / HDBSCAN</h3><p>Baik untuk data yang ada noise dan bentuk cluster tidak sekata. HDBSCAN lazimnya lebih fleksibel daripada DBSCAN.</p><div class="pill-row"><span class="pill">Tahan noise</span><span class="pill">Tidak perlu K</span><span class="pill">Sensitif parameter</span></div></div>
+            <div class="card"><h3>Hierarchical Clustering</h3><p>Sesuai jika anda mahu lihat struktur bertingkat dan dendrogram, terutama untuk dataset kecil hingga sederhana.</p><div class="pill-row"><span class="pill">Interpretasi baik</span><span class="pill">Mahal pada skala besar</span></div></div>
+            <div class="card"><h3>Spectral Clustering</h3><p>Bagus untuk bentuk yang sukar dipisah secara linear, tetapi kos pengiraan dan skala perlu diberi perhatian.</p><div class="pill-row"><span class="pill">Menangkap struktur kompleks</span><span class="pill">Kurang skala</span></div></div>
+            <div class="card"><h3>BIRCH dan Mini-Batch K-Means</h3><p>Alternatif praktikal untuk dataset besar apabila kelajuan dan memori menjadi keutamaan.</p><div class="pill-row"><span class="pill">Lebih scalable</span><span class="pill">Aproksimasi</span></div></div>
+          </div>
+          <details style="margin-top: 16px;" open><summary>Perbezaan paling penting antara K-Means dan GMM</summary><p>K-Means memberi satu cluster sahaja kepada setiap titik data dan mengoptimumkan variasi dalam cluster. GMM pula menganggar kebarangkalian titik itu datang daripada beberapa komponen Gaussian. Hubungan antara kedua-duanya memang wujud dalam kes tertentu, tetapi tidak tepat untuk menyebut GMM sebagai sekadar evolusi K-Means tanpa syarat tambahan.</p></details>
+          <details><summary>DBSCAN atau HDBSCAN?</summary><p>Jika ketumpatan cluster hampir seragam dan anda boleh pilih <code>eps</code> dengan baik, DBSCAN boleh cukup baik. Jika ketumpatan berubah-ubah, HDBSCAN biasanya lebih selamat kerana ia tidak memaksa satu ambang ketumpatan tunggal untuk semua cluster.</p></details>
+          <details><summary>Bolehkah saya cluster atas hasil t-SNE atau UMAP?</summary><p>Boleh, tetapi perlu berhati-hati. Untuk visualisasi, ia berguna. Untuk clustering utama, hasil 2D itu boleh mengubah jarak asal dan menimbulkan cluster palsu. Lebih baik lakukan clustering pada ruang ciri yang lebih setia, contohnya data yang sudah diproses atau hasil PCA atau embedding yang sesuai.</p></details>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="pembetulan">
+          <h2>4. Mitos, Kelemahan, dan Pembetulan kepada Kandungan Asal</h2>
+          <p class="lead">PDF asal kuat dari sudut keluasan, tetapi ada beberapa bahagian yang terlalu mutlak atau kurang seimbang. Bahagian ini menjadikannya lebih tepat.</p>
+          <div class="grid-2">
+            <div class="callout bad"><strong>Mitos:</strong> "Clustering sentiasa mencari kumpulan diskret yang sebenar."<p><strong>Pembetulan:</strong> clustering sering menghasilkan struktur berguna, bukan semestinya struktur ontologi yang betul. Data dunia sebenar boleh bertindih, bertingkat, atau tiada cluster yang jelas langsung.</p></div>
+            <div class="callout bad"><strong>Mitos:</strong> "UMAP lebih baik dan menyelesaikan batas t-SNE."<p><strong>Pembetulan:</strong> UMAP memang lebih laju dan sering mengekalkan struktur global dengan lebih baik, tetapi ia masih transformasi untuk visualisasi dan tetap dipengaruhi parameter serta sampling.</p></div>
+            <div class="callout bad"><strong>Mitos:</strong> "Silhouette tinggi bermakna clustering pasti bagus."<p><strong>Pembetulan:</strong> silhouette lebih mesra pada cluster padat dan terpisah. Untuk cluster kompleks, tidak sekata, atau bertingkat, skor ini boleh mengelirukan.</p></div>
+            <div class="callout bad"><strong>Mitos:</strong> "K-Means bagus untuk jutaan data, jadi itu pilihan lalai."<p><strong>Pembetulan:</strong> laju tidak bermakna sesuai. Jika bentuk cluster pelik, ada outlier, atau data sparse, algoritma lain mungkin lebih tepat walaupun lebih mahal.</p></div>
+          </div>
+          <div class="callout good"><strong>Penambahan penting yang tiada dalam PDF asal:</strong> mixed-data distances, preprocessing untuk outlier, kestabilan cluster di bawah resampling, interpretasi domain, dan pertimbangan etika untuk segmentasi pengguna.</div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="pemilihan">
+          <h2>5. Pemilih Algoritma Interaktif</h2>
+          <p class="lead">Gunakan alat mini ini sebagai panduan awal. Ia bukan pengganti eksperimen, tetapi membantu mengecilkan pilihan dengan cepat.</p>
+          <div class="algo-picker">
+            <div class="picker-form">
+              <label>Saiz data<select id="size"><option value="small">Kecil hingga sederhana</option><option value="large">Besar</option></select></label>
+              <label>Bentuk cluster yang dijangka<select id="shape"><option value="round">Lebih kurang bulat / elips</option><option value="irregular">Tidak sekata / bentuk kompleks</option></select></label>
+              <label>Tahap noise / outlier<select id="noise"><option value="low">Rendah</option><option value="high">Tinggi</option></select></label>
+              <label>Perlu bilangan cluster diketahui awal?<select id="kknown"><option value="yes">Ya, saya ada anggaran K</option><option value="no">Tidak</option></select></label>
+              <label>Jenis fitur dominan<select id="features"><option value="numeric">Numerik</option><option value="text">Teks / embeddings / sparse</option><option value="mixed">Campuran</option></select></label>
+              <button type="button" id="runPicker">Cadangkan Algoritma</button>
+            </div>
+            <div class="recommendation" id="recommendationBox">
+              <h3>Cadangan awal</h3>
+              <p>Pilih ciri data di sebelah kiri, kemudian tekan butang untuk dapatkan cadangan dan sebabnya.</p>
+            </div>
+          </div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="workflow">
+          <h2>6. Workflow Praktikal yang Sering Terlepas</h2>
+          <p class="lead">Inilah bahagian yang paling kurang ditekankan dalam PDF asal. Dalam projek sebenar, kualiti clustering sangat bergantung pada workflow sebelum dan selepas algoritma.</p>
+          <div class="flow">
+            <div><strong>Tetapkan tujuan.</strong> Adakah anda mahu segmentasi pelanggan, temui anomali, ringkaskan data, atau hasilkan feature baharu?</div>
+            <div><strong>Bersihkan dan wakilkan data dengan betul.</strong> Tangani missing values, scaling, encoding kategori, outlier, dan ciri yang berlebihan.</div>
+            <div><strong>Pilih ruang ciri yang sesuai.</strong> Jangan terus guna t-SNE 2D untuk clustering utama tanpa sebab yang kuat.</div>
+            <div><strong>Jalankan beberapa algoritma dan parameter.</strong> Bandingkan dari sudut metrik, kestabilan, dan interpretasi domain.</div>
+            <div><strong>Semak kestabilan.</strong> Cuba resampling, subset data, atau seed berbeza. Cluster yang runtuh bila data diubah sedikit biasanya kurang boleh dipercayai.</div>
+            <div><strong>Terjemah kepada tindakan.</strong> Label cluster, bina profil, dan semak sama ada hasil itu boleh menjawab soalan perniagaan atau saintifik anda.</div>
+          </div>
+          <div class="grid-2" style="margin-top: 18px;">
+            <div class="card"><h3>Checklist sebelum clustering</h3><ul class="checklist"><li>Adakah semua fitur berada pada skala yang munasabah?</li><li>Adakah anda tahu ciri mana yang patut dominan?</li><li>Adakah jenis data memerlukan jarak khas seperti cosine atau Gower?</li><li>Adakah outlier patut dibuang, ditanda, atau dikekalkan?</li></ul></div>
+            <div class="card"><h3>Checklist selepas clustering</h3><ul class="checklist"><li>Adakah cluster stabil merentas seed atau subsampel?</li><li>Adakah cluster terlalu banyak atau terlalu sedikit untuk tindakan sebenar?</li><li>Adakah setiap cluster boleh diterangkan dalam bahasa domain?</li><li>Adakah cluster berisiko menguatkan bias pengguna atau keputusan tidak adil?</li></ul></div>
+          </div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="penilaian">
+          <h2>7. Menilai Cluster dengan Lebih Matang</h2>
+          <p class="lead">PDF asal sudah menyentuh Silhouette, Davies-Bouldin, dan Calinski-Harabasz. Itu baik, tetapi dalam amalan, menilai cluster tidak boleh bergantung pada satu angka sahaja.</p>
+          <div class="grid-3">
+            <div class="card"><h3>Silhouette Score</h3><p>Bagus sebagai isyarat awal untuk cluster yang padat dan terpisah. Kurang sesuai jika bentuk cluster pelik atau bertingkat.</p></div>
+            <div class="card"><h3>Davies-Bouldin Index</h3><p>Lebih rendah lebih baik. Mengukur persamaan antara cluster yang boleh bertindih atau terlalu dekat.</p></div>
+            <div class="card"><h3>Calinski-Harabasz</h3><p>Lebih tinggi lebih baik. Menilai nisbah antara variasi antara-cluster dan dalam-cluster.</p></div>
+          </div>
+          <div class="callout warn"><strong>Amaran penting:</strong> jika objective anda ialah kegunaan domain, metrik dalaman sahaja tidak cukup. Cluster yang sedikit kurang cantik kadang-kadang jauh lebih berguna untuk operasi, segmentasi, atau penemuan saintifik.</div>
+          <details open><summary>Apa lagi yang patut diuji?</summary><p>Uji kestabilan, interpretasi ciri penting, kadar noise, saiz cluster, dan sama ada hasil itu konsisten dengan pengetahuan domain. Jika anda ada label luar secara separa, gunakan juga penilaian luaran seperti adjusted Rand index atau mutual information.</p></details>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="aplikasi">
+          <h2>8. Aplikasi Dunia Sebenar</h2>
+          <p class="lead">Topik dalam PDF asal menyebut bioinformatik, image segmentation, anomaly detection, dan customer behavior. Di sini saya tambah gambaran bagaimana memilih pendekatan mengikut konteks.</p>
+          <div class="grid-4">
+            <div class="card"><h3>Pelanggan</h3><p>K-Means atau GMM boleh berguna jika fitur sudah dibentuk dengan baik. Tapi jika data campuran dan banyak kategori, jangan terus guna Euclidean tanpa fikir.</p></div>
+            <div class="card"><h3>Teks dan dokumen</h3><p>Embeddings + cosine distance lazimnya lebih masuk akal daripada K-Means mentah pada frekuensi perkataan yang belum distabilkan.</p></div>
+            <div class="card"><h3>Data saintifik</h3><p>HDBSCAN, graph-based methods, dan pemeriksaan kestabilan sering lebih sesuai untuk struktur biologi yang kompleks.</p></div>
+            <div class="card"><h3>Pengesanan anomali</h3><p>Clustering boleh bantu, tetapi ia bukan sama dengan anomaly detection. Noise yang ditinggalkan DBSCAN kadang-kadang berguna sebagai isyarat, bukan kesimpulan penuh.</p></div>
+          </div>
+          <div class="mini-output" id="scenarioOutput" style="display:block;"><strong>Contoh keputusan yang lebih matang:</strong> untuk segmentasi pelanggan e-dagang, mula dengan objektif yang jelas seperti retensi atau personalisasi, bina fitur tingkah laku yang stabil, standardize, cuba K-Means dan GMM, kemudian bandingkan kestabilan serta kebolehjelasan profil setiap cluster.</div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="quiz">
+          <h2>9. Kuiz Interaktif</h2>
+          <p class="lead">Semak sama ada anda sudah tangkap prinsip paling penting, bukan sekadar nama algoritma.</p>
+          <div class="quiz" id="quizForm">
+            <div class="question" data-answer="b"><h4>1. Mengapa scaling penting sebelum guna K-Means?</h4><label><input type="radio" name="q1" value="a"> Supaya jumlah data bertambah</label><label><input type="radio" name="q1" value="b"> Supaya ciri berskala besar tidak mendominasi jarak</label><label><input type="radio" name="q1" value="c"> Supaya algoritma tidak perlu centroid</label></div>
+            <div class="question" data-answer="c"><h4>2. Algoritma mana lebih sesuai jika cluster tidak sekata dan data ada noise tinggi?</h4><label><input type="radio" name="q2" value="a"> K-Means</label><label><input type="radio" name="q2" value="b"> Ward linkage sahaja</label><label><input type="radio" name="q2" value="c"> HDBSCAN atau DBSCAN</label></div>
+            <div class="question" data-answer="a"><h4>3. Apakah risiko utama clustering terus pada visualisasi t-SNE/UMAP 2D?</h4><label><input type="radio" name="q3" value="a"> Jarak asal boleh terdistorsi dan cluster palsu boleh muncul</label><label><input type="radio" name="q3" value="b"> Data akan bertukar jadi supervised learning</label><label><input type="radio" name="q3" value="c"> Semua outlier akan hilang</label></div>
+            <div class="question" data-answer="b"><h4>4. Dalam GMM, apa maksud soft assignment?</h4><label><input type="radio" name="q4" value="a"> Setiap data dibuang jika kebarangkalian rendah</label><label><input type="radio" name="q4" value="b"> Satu titik boleh mempunyai kebarangkalian keahlian bagi beberapa cluster</label><label><input type="radio" name="q4" value="c"> Hanya satu cluster boleh dipilih tetapi secara rawak</label></div>
+            <div class="question" data-answer="c"><h4>5. Bila silhouette score boleh mengelirukan?</h4><label><input type="radio" name="q5" value="a"> Bila dataset terlalu kecil sahaja</label><label><input type="radio" name="q5" value="b"> Bila guna data numerik</label><label><input type="radio" name="q5" value="c"> Bila bentuk cluster kompleks atau ketumpatan berbeza-beza</label></div>
+            <div class="question" data-answer="a"><h4>6. Apakah matlamat terbaik selepas dapat cluster?</h4><label><input type="radio" name="q6" value="a"> Menafsir dan menghubungkan cluster kepada objektif domain</label><label><input type="radio" name="q6" value="b"> Terus menganggap cluster itu benar secara mutlak</label><label><input type="radio" name="q6" value="c"> Menghapus semua data yang tidak masuk akal</label></div>
+          </div>
+          <button type="button" id="gradeQuiz">Semak Markah</button>
+          <div class="quiz-result" id="quizResult"></div>
+        </section>
+      </article>
+      <article class="panel">
+        <section id="rujukan">
+          <h2>10. Nota Akhir</h2>
+          <p class="lead">Ebook ini dibina berasaskan kandungan dalam fail sumber <code>cluster_analysis_pdf.pdf</code>, kemudian dirombak supaya lebih tepat, lebih mesra pembelajaran, dan lebih praktikal untuk pelajar atau pengamal data.</p>
+          <div class="grid-2">
+            <div class="card"><h3>Apa yang dibetulkan</h3><ul><li>Klaim yang terlalu mutlak tentang struktur cluster, UMAP, dan skor penilaian.</li><li>Hubungan K-Means dengan GMM yang sebelumnya terlalu dipermudah.</li><li>Penekanan berlebihan pada visualisasi 2D sebagai asas clustering.</li></ul></div>
+            <div class="card"><h3>Apa yang ditambah</h3><ul><li>Mixed data handling dan pentingnya representasi fitur.</li><li>Workflow projek sebenar, termasuk kestabilan dan interpretasi domain.</li><li>Komponen interaktif: pemilih algoritma, mod belajar, dan kuiz.</li></ul></div>
+          </div>
+          <p class="footer-note">Jika anda mahu, ebook ini boleh dikembangkan lagi ke format PDF bercetak atau EPUB, tetapi untuk tahap interaktiviti sebenar, HTML ialah format yang paling sesuai.</p>
+        </section>
+      </article>
+    </main>
+  </div>
+  <script>
+    const progressBar = document.getElementById("readingProgress");
+    const tocLinks = [...document.querySelectorAll(".toc a")];
+    const sections = tocLinks.map(link => document.querySelector(link.getAttribute("href")));
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = ratio + "%";
+      let activeId = "";
+      sections.forEach(section => { if (section.getBoundingClientRect().top <= 140) activeId = section.id; });
+      tocLinks.forEach(link => { link.classList.toggle("active", link.getAttribute("href") === "#" + activeId); });
+    }
+    document.addEventListener("scroll", updateProgress, { passive: true });
+    updateProgress();
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.tab;
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(target).classList.add("active");
+      });
+    });
+    const pickerButton = document.getElementById("runPicker");
+    const recommendationBox = document.getElementById("recommendationBox");
+    const recommendations = {
+      hdbscan: { title: "Cadangan: HDBSCAN", body: "Sesuai jika data anda ada noise, bentuk cluster tidak sekata, dan anda tidak mahu memaksa nilai K. Ia biasanya lebih fleksibel daripada DBSCAN apabila ketumpatan cluster berubah-ubah.", caveat: "Tetap perlu semak representasi fitur dan tafsiran domain. HDBSCAN bukan magik jika ruang ciri anda lemah." },
+      kmeans: { title: "Cadangan: K-Means", body: "Pilihan awal yang baik untuk data numerik yang diskalakan dengan cluster yang agak bulat dan noise rendah. Sesuai juga sebagai baseline yang cepat.", caveat: "Pastikan anda uji beberapa nilai K dan semak kestabilan hasil." },
+      gmm: { title: "Cadangan: Gaussian Mixture Model", body: "Bagus jika anda menjangka cluster elips atau pertindihan antara kumpulan, dan anda mahu kebarangkalian keahlian, bukan assignment keras semata-mata.", caveat: "Andaian Gaussian perlu diperiksa. Jika data sangat tidak normal atau banyak noise keras, prestasi boleh merosot." },
+      text: { title: "Cadangan: Clustering pada embeddings + cosine-aware approach", body: "Untuk teks atau embeddings, gunakan ruang vektor yang munasabah dan jarak seperti cosine. K-Means pada embeddings boleh jadi baseline, tetapi nilai sebenar datang daripada representasi yang baik.", caveat: "Jangan hanya fokus pada algoritma. Kualiti embedding sering lebih penting." },
+      hierarchical: { title: "Cadangan: Hierarchical Clustering", body: "Sesuai untuk dataset kecil hingga sederhana apabila anda mahu lihat hubungan bertingkat melalui dendrogram dan belum pasti berapa cluster yang masuk akal.", caveat: "Kos pengiraan dan memori boleh meningkat cepat pada dataset besar." },
+      mixed: { title: "Cadangan: Pipeline data campuran dahulu", body: "Data campuran perlukan perhatian pada representasi. Gunakan encoding yang betul, pertimbang jarak seperti Gower, dan hanya kemudian pilih algoritma seperti hierarchical, k-medoids, atau pendekatan lain yang sesuai.", caveat: "Masalah sebenar anda mungkin bukan pemilihan algoritma, tetapi pemilihan jarak dan perwakilan fitur." }
+    };
+    pickerButton.addEventListener("click", () => {
+      const size = document.getElementById("size").value;
+      const shape = document.getElementById("shape").value;
+      const noise = document.getElementById("noise").value;
+      const kknown = document.getElementById("kknown").value;
+      const features = document.getElementById("features").value;
+      let key = "kmeans";
+      if (features === "mixed") key = "mixed";
+      else if (features === "text") key = "text";
+      else if (shape === "irregular" && noise === "high") key = "hdbscan";
+      else if (shape === "round" && noise === "low" && kknown === "yes") key = "kmeans";
+      else if (shape === "round" && kknown === "yes") key = "gmm";
+      else if (size === "small" && kknown === "no") key = "hierarchical";
+      else if (shape === "irregular") key = "hdbscan";
+      const rec = recommendations[key];
+      recommendationBox.innerHTML = `<h3>${rec.title}</h3><p>${rec.body}</p><div class="callout warn"><strong>Perhatian:</strong> ${rec.caveat}</div>`;
+    });
+    document.getElementById("gradeQuiz").addEventListener("click", () => {
+      const questions = [...document.querySelectorAll(".question")];
+      let score = 0;
+      questions.forEach((question, index) => {
+        const answer = question.dataset.answer;
+        const chosen = question.querySelector(`input[name="q${index + 1}"]:checked`);
+        question.style.borderColor = "var(--line)";
+        if (chosen && chosen.value === answer) {
+          score += 1;
+          question.style.borderColor = "rgba(22, 101, 52, 0.45)";
+        } else if (chosen) {
+          question.style.borderColor = "rgba(185, 28, 28, 0.35)";
+        }
+      });
+      const result = document.getElementById("quizResult");
+      const total = questions.length;
+      let note = "Anda sudah pegang konsep utama dengan baik.";
+      if (score <= 2) note = "Kembali semak bahagian metrik jarak, pemilihan algoritma, dan penilaian cluster.";
+      else if (score <= 4) note = "Asas sudah ada, tetapi masih ada beberapa salah tafsir yang patut diperbetulkan.";
+      result.style.display = "block";
+      result.innerHTML = `<strong>Markah anda: ${score}/${total}</strong><p>${note}</p>`;
+    });
+  </script>
+</body>
+</html>
