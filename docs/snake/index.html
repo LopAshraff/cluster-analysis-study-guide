@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Snake</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../">Back to docs</a>
+    <section class="panel">
+      <div class="tag">Classic Loop</div>
+      <h1>Snake</h1>
+      <p class="intro">
+        Minimal Snake built as a standalone docs page. Use arrow keys or WASD to move,
+        <strong>Space</strong> to pause, and <strong>R</strong> to restart.
+      </p>
+
+      <div class="hud">
+        <div class="stats">
+          <div class="stat">
+            <span class="label">Score</span>
+            <span class="value" id="scoreValue">0</span>
+          </div>
+          <div class="stat">
+            <span class="label">Status</span>
+            <span class="value" id="statusValue">Running</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" data-action="pause">Pause</button>
+          <button type="button" data-action="restart">Restart</button>
+        </div>
+      </div>
+
+      <div class="board-shell">
+        <div class="board-frame">
+          <canvas id="gameBoard" aria-label="Snake game board" role="img"></canvas>
+        </div>
+        <p class="hint">Walls are solid. Reverse turns are ignored.</p>
+
+        <div class="mobile-controls" aria-label="On-screen controls">
+          <div class="row">
+            <button type="button" data-direction="up">Up</button>
+          </div>
+          <div class="row">
+            <button type="button" data-direction="left">Left</button>
+            <button type="button" data-action="pause">Pause</button>
+            <button type="button" data-direction="right">Right</button>
+          </div>
+          <div class="row">
+            <button type="button" data-direction="down">Down</button>
+            <button type="button" data-action="restart">Restart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
