@@ -1,5 +1,9 @@
 # Snake
 
+Live demo:
+
+- https://lopashraff.github.io/cluster-analysis-study-guide/snake/
+
 Run a local static server from the repo root:
 
 ```bash
