@@ -10,6 +10,7 @@ const canvas = document.getElementById("gameBoard");
 const context = canvas.getContext("2d");
 const scoreValue = document.getElementById("scoreValue");
 const statusValue = document.getElementById("statusValue");
+const statusNote = document.getElementById("statusNote");
 const pauseButtons = [...document.querySelectorAll('[data-action="pause"]')];
 const restartButtons = [...document.querySelectorAll('[data-action="restart"]')];
 const directionButtons = [...document.querySelectorAll("[data-direction]")];
@@ -74,6 +75,7 @@ function render() {
   drawBoard();
   scoreValue.textContent = String(state.score);
   statusValue.textContent = describeStatus(state.status);
+  statusNote.textContent = describeStatusNote(state.status);
   pauseButtons.forEach(button => {
     button.textContent = state.status === "paused" ? "Resume" : "Pause";
     button.disabled = state.status === "game-over";
@@ -132,6 +134,18 @@ function describeStatus(status) {
   }
 
   return "Running";
+}
+
+function describeStatusNote(status) {
+  if (status === "paused") {
+    return "Paused. Press Space or Resume to continue.";
+  }
+
+  if (status === "game-over") {
+    return "Game over. Press R or Restart to play again.";
+  }
+
+  return "Walls are solid. Reverse turns are ignored.";
 }
 
 function handleKeydown(event) {
