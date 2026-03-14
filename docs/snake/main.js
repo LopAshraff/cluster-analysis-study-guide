@@ -11,9 +11,17 @@ const context = canvas.getContext("2d");
 const scoreValue = document.getElementById("scoreValue");
 const statusValue = document.getElementById("statusValue");
 const statusNote = document.getElementById("statusNote");
+const boardFrame = document.querySelector(".board-frame");
 const pauseButtons = [...document.querySelectorAll('[data-action="pause"]')];
 const restartButtons = [...document.querySelectorAll('[data-action="restart"]')];
 const directionButtons = [...document.querySelectorAll("[data-direction]")];
+const isTouchMode =
+  window.matchMedia("(pointer: coarse)").matches ||
+  window.matchMedia("(hover: none)").matches;
+
+const SWIPE_THRESHOLD_PX = 24;
+const TAP_THRESHOLD_PX = 12;
+const DOUBLE_TAP_MS = 300;
 
 canvas.width = GRID_COLS * CELL_SIZE;
 canvas.height = GRID_ROWS * CELL_SIZE;
@@ -24,6 +32,8 @@ let lastFrameTime = performance.now();
 let manualTimeMode =
   searchParams.get("manual") === "1" ||
   searchParams.get("manual") === "true";
+let gestureStartPoint = null;
+let lastTapAt = 0;
 
 function restartGame() {
   state = createGameState({ cols: state.cols, rows: state.rows });
@@ -138,30 +148,33 @@ function describeStatus(status) {
 
 function describeStatusNote(status) {
   if (status === "paused") {
-    return "Paused. Press Space or Resume to continue.";
+    return isTouchMode
+      ? "Paused. Double tap the board to continue."
+      : "Paused. Press Space or Resume to continue.";
   }
 
   if (status === "game-over") {
-    return "Game over. Press R or Restart to play again.";
+    return isTouchMode
+      ? "Game over. Tap the board to play again."
+      : "Game over. Press R or Restart to play again.";
   }
 
-  return "Walls are solid. Reverse turns are ignored.";
+  return isTouchMode
+    ? "Swipe on the board to steer. Double tap to pause."
+    : "Use the cursor keys. Walls are solid. Reverse turns are ignored.";
 }
 
 function handleKeydown(event) {
   const key = event.key.toLowerCase();
   const directionByKey = {
     arrowup: "up",
-    w: "up",
     arrowdown: "down",
-    s: "down",
     arrowleft: "left",
-    a: "left",
     arrowright: "right",
-    d: "right"
+    r: "restart"
   };
 
-  if (key in directionByKey) {
+  if (key.startsWith("arrow") && key in directionByKey) {
     event.preventDefault();
     applyDirection(directionByKey[key]);
     return;
@@ -176,6 +189,68 @@ function handleKeydown(event) {
   if (key === "r") {
     event.preventDefault();
     restartGame();
+  }
+}
+
+function handlePointerDown(event) {
+  if (event.pointerType !== "touch") {
+    return;
+  }
+
+  gestureStartPoint = {
+    x: event.clientX,
+    y: event.clientY
+  };
+}
+
+function handlePointerUp(event) {
+  if (event.pointerType !== "touch" || !gestureStartPoint) {
+    return;
+  }
+
+  const deltaX = event.clientX - gestureStartPoint.x;
+  const deltaY = event.clientY - gestureStartPoint.y;
+  const absX = Math.abs(deltaX);
+  const absY = Math.abs(deltaY);
+
+  gestureStartPoint = null;
+
+  if (absX <= TAP_THRESHOLD_PX && absY <= TAP_THRESHOLD_PX) {
+    const now = performance.now();
+
+    if (state.status === "game-over") {
+      restartGame();
+      lastTapAt = 0;
+      return;
+    }
+
+    if (now - lastTapAt <= DOUBLE_TAP_MS) {
+      togglePause();
+      lastTapAt = 0;
+    } else {
+      lastTapAt = now;
+    }
+
+    return;
+  }
+
+  lastTapAt = 0;
+
+  if (Math.max(absX, absY) < SWIPE_THRESHOLD_PX) {
+    return;
+  }
+
+  if (absX > absY) {
+    applyDirection(deltaX > 0 ? "right" : "left");
+    return;
+  }
+
+  applyDirection(deltaY > 0 ? "down" : "up");
+}
+
+function cancelPointerGesture(event) {
+  if (event.pointerType === "touch") {
+    gestureStartPoint = null;
   }
 }
 
@@ -199,6 +274,9 @@ directionButtons.forEach(button => {
 pauseButtons.forEach(button => button.addEventListener("click", togglePause));
 restartButtons.forEach(button => button.addEventListener("click", restartGame));
 window.addEventListener("keydown", handleKeydown, { passive: false });
+boardFrame.addEventListener("pointerdown", handlePointerDown);
+boardFrame.addEventListener("pointerup", handlePointerUp);
+boardFrame.addEventListener("pointercancel", cancelPointerGesture);
 
 window.render_game_to_text = () =>
   JSON.stringify({

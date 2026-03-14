@@ -150,6 +150,7 @@ button:disabled {
   border-radius: 28px;
   background: rgba(255, 250, 242, 0.96);
   border: 1px solid var(--line);
+  touch-action: none;
 }
 
 canvas {
@@ -167,22 +168,6 @@ canvas {
   text-align: center;
 }
 
-.mobile-controls {
-  display: none;
-  width: min(100%, 280px);
-  gap: 10px;
-}
-
-.mobile-controls .row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.mobile-controls button {
-  min-width: 78px;
-}
-
 @media (pointer: coarse), (max-width: 760px) {
   .page {
     padding: 16px;
@@ -198,9 +183,5 @@ canvas {
 
   .actions {
     display: none;
-  }
-
-  .mobile-controls {
-    display: grid;
   }
 }
