@@ -162,6 +162,7 @@ canvas {
 
 .hint {
   margin: 0;
+  min-height: 1.5em;
   color: var(--muted);
   text-align: center;
 }

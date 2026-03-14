@@ -25,7 +25,7 @@
           </div>
           <div class="stat">
             <span class="label">Status</span>
-            <span class="value" id="statusValue">Running</span>
+            <span class="value" id="statusValue" aria-live="polite">Running</span>
           </div>
         </div>
         <div class="actions">
@@ -38,7 +38,7 @@
         <div class="board-frame">
           <canvas id="gameBoard" aria-label="Snake game board" role="img"></canvas>
         </div>
-        <p class="hint">Walls are solid. Reverse turns are ignored.</p>
+        <p class="hint" id="statusNote" aria-live="polite">Walls are solid. Reverse turns are ignored.</p>
 
         <div class="mobile-controls" aria-label="On-screen controls">
           <div class="row">
