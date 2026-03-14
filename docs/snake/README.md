@@ -14,9 +14,8 @@ Open [http://localhost:8000/docs/snake/](http://localhost:8000/docs/snake/).
 
 Controls:
 
-- Arrow keys or `WASD` to move
-- `Space` to pause/resume
-- `R` or the Restart button to reset
+- Desktop: cursor keys to move, `Space` to pause/resume, `R` or Restart to reset
+- Mobile: swipe on the board to move, double tap to pause/resume, tap after game over to restart
 
 Manual checks:
 
