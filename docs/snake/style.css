@@ -196,11 +196,7 @@ canvas {
   }
 
   .actions {
-    width: 100%;
-  }
-
-  .actions button {
-    flex: 1 1 0;
+    display: none;
   }
 
   .mobile-controls {
